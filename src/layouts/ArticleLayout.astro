@@ -1,0 +1,272 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import ArticleTable from '../components/ArticleTable.astro';
+import type { Article, Author, Issue } from '../data/types';
+
+interface Props {
+  article: Article;
+  issue: Issue;
+  articleAuthors: Author[];
+  pdfHref?: string;
+}
+
+const { article, issue, articleAuthors, pdfHref } = Astro.props;
+const issueHref = `/issues/${issue.slug}/`;
+const date = new Intl.DateTimeFormat('ru-RU', {
+  day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC',
+}).format(new Date(article.publishedAt));
+const references = article.references?.filter((reference) => reference.trim());
+---
+
+<BaseLayout title={article.title} description={article.abstract}>
+  <Breadcrumbs items={[
+    { label: 'Главная', href: '/' },
+    { label: 'Архив', unavailable: true },
+    { label: `Выпуск ${issue.year}, № ${issue.number}`, href: issueHref },
+    { label: 'Статья' },
+  ]} />
+
+  <article aria-labelledby="article-title">
+    <header class="article-header">
+      <h1 id="article-title">{article.title}</h1>
+      {articleAuthors.length > 0 ? (
+        <ul class="authors" aria-label="Авторы">
+          {articleAuthors.map((author) => (
+            <li>
+              <span>{author.name}</span>
+              {author.affiliation && <span class="affiliation">{author.affiliation}</span>}
+            </li>
+          ))}
+        </ul>
+      ) : <p class="authors">Сведения об авторах не указаны.</p>}
+      <dl class="metadata">
+        <div><dt>Выпуск</dt><dd><a href={issueHref}>{issue.year}, № {issue.number}</a></dd></div>
+        <div><dt>Опубликовано</dt><dd><time datetime={article.publishedAt}>{date}</time></dd></div>
+        <div><dt>Материал</dt><dd>{article.category}</dd></div>
+      </dl>
+      <p class="demo-notice">Вымышленный учебный материал. Авторы и содержание придуманы для макета.</p>
+    </header>
+
+    <div class="reading-grid">
+      <div class="reading-column">
+        <section class="abstract" aria-labelledby="abstract-heading">
+          <h2 id="abstract-heading">Аннотация</h2>
+          <p>{article.abstract}</p>
+          {article.keywords.length > 0 && (
+            <div class="keywords">
+              <h3>Ключевые слова</h3>
+              <ul>{article.keywords.map((keyword) => <li>{keyword}</li>)}</ul>
+            </div>
+          )}
+        </section>
+
+        <div class="prose">
+          {article.image && (
+            <figure><img src={article.image.src} alt={article.image.alt} loading="lazy" /></figure>
+          )}
+          {article.sections.length > 0 ? article.sections.map((section, index) => (
+            <section aria-labelledby={`section-${index + 1}`}>
+              <h2 id={`section-${index + 1}`}>{section.heading}</h2>
+              {section.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+              {section.table && <ArticleTable table={section.table} id={`table-${index + 1}`} />}
+            </section>
+          )) : <p class="empty-text">Полный текст пока не подготовлен.</p>}
+
+          {references && references.length > 0 && (
+            <section class="references" aria-labelledby="references-heading">
+              <h2 id="references-heading">Литература</h2>
+              <ol>{references.map((reference) => <li>{reference}</li>)}</ol>
+            </section>
+          )}
+        </div>
+
+        <footer class="article-footer">
+          <a href={issueHref} aria-describedby="issue-stage">К выпуску {issue.year}, № {issue.number}</a>
+          {pdfHref && <a href={pdfHref} download>Скачать PDF</a>}
+          <p id="issue-stage">Страница выпуска готовится. Ссылка сохранена для следующего этапа.</p>
+        </footer>
+      </div>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .article-header {
+    margin-block-end: var(--space-12);
+  }
+
+  h1,
+  h2 {
+    font-family: var(--font-heading);
+    font-weight: var(--font-weight-semibold);
+    overflow-wrap: anywhere;
+  }
+
+  h1 {
+    max-inline-size: min(100%, var(--measure-title));
+    margin-block-end: var(--space-6);
+    font-size: var(--font-size-page-title);
+    line-height: var(--line-height-page-title);
+  }
+
+  h2 {
+    margin-block-end: var(--space-5);
+    font-size: var(--font-size-section-title);
+    line-height: var(--line-height-section-title);
+  }
+
+  .authors {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-6);
+    margin-block-end: var(--space-6);
+    padding: 0;
+    list-style: none;
+    font-weight: var(--font-weight-medium);
+    overflow-wrap: anywhere;
+  }
+
+  .authors li {
+    min-inline-size: 0;
+    max-inline-size: 100%;
+  }
+
+  .affiliation {
+    display: block;
+    max-inline-size: var(--measure-abstract);
+    margin-block-start: var(--space-1);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-caption);
+    font-weight: var(--font-weight-regular);
+  }
+
+  .metadata {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4) var(--space-8);
+    color: var(--color-text-secondary);
+  }
+
+  .metadata div {
+    min-inline-size: 0;
+  }
+
+  dt {
+    margin-block-end: var(--space-1);
+    font-size: var(--font-size-caption);
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .demo-notice {
+    max-inline-size: var(--measure-abstract);
+    margin-block-start: var(--space-6);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-caption);
+  }
+
+  .reading-grid,
+  .reading-column {
+    min-inline-size: 0;
+  }
+
+  .reading-column {
+    max-inline-size: 100%;
+  }
+
+  .abstract {
+    max-inline-size: min(100%, var(--measure-abstract));
+    font-family: var(--font-abstract);
+    font-size: var(--font-size-abstract);
+    line-height: var(--line-height-abstract);
+    overflow-wrap: anywhere;
+  }
+
+  .keywords {
+    margin-block-start: var(--space-6);
+    font-size: var(--font-size-interface);
+    line-height: var(--line-height-interface);
+  }
+
+  .keywords h3 {
+    margin-block-end: var(--space-2);
+    font-size: inherit;
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .keywords ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-2);
+    padding: 0;
+    list-style: none;
+  }
+
+  .keywords li:not(:last-child)::after {
+    content: ",";
+  }
+
+  .prose {
+    max-inline-size: min(100%, var(--measure-body));
+    font-family: var(--font-body);
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-body);
+    overflow-wrap: anywhere;
+  }
+
+  .prose section,
+  .prose figure,
+  .empty-text {
+    margin-block-start: var(--space-12);
+  }
+
+  .prose p + p {
+    margin-block-start: var(--space-6);
+  }
+
+  .references ol {
+    padding-inline-start: var(--space-6);
+  }
+
+  .references li + li {
+    margin-block-start: var(--space-4);
+  }
+
+  .article-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3) var(--space-6);
+    margin-block-start: var(--space-12);
+    padding-block-start: var(--space-6);
+    border-top: var(--border-width) solid var(--color-border);
+  }
+
+  .article-footer a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--target-size-min);
+  }
+
+  .article-footer p {
+    flex-basis: 100%;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-caption);
+  }
+
+  @media (min-width: 64rem) {
+    .reading-grid {
+      display: grid;
+      grid-template-columns: repeat(var(--grid-columns-wide), minmax(0, 1fr));
+      gap: var(--grid-gap);
+    }
+
+    .reading-column {
+      grid-column: var(--grid-content-start) / span var(--grid-content-columns);
+    }
+  }
+</style>

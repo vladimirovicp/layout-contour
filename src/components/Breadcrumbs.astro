@@ -1,0 +1,57 @@
+---
+interface Props {
+  items: { label: string; href?: string; unavailable?: boolean }[];
+}
+
+const { items } = Astro.props;
+---
+
+{items.length > 0 && (
+  <nav class="breadcrumbs" aria-label="Хлебные крошки">
+    <ol>
+      {items.map((item, index) => (
+        <li>
+          {index === items.length - 1 ? (
+            <span aria-current="page">{item.label}</span>
+          ) : item.href && !item.unavailable ? (
+            <a href={item.href}>{item.label}</a>
+          ) : (
+            <span aria-disabled={item.unavailable || undefined} title={item.unavailable ? 'Раздел готовится' : undefined}>{item.label}</span>
+          )}
+        </li>
+      ))}
+    </ol>
+  </nav>
+)}
+
+<style>
+  .breadcrumbs {
+    padding-block: var(--space-6) var(--space-8);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-caption);
+    overflow-wrap: anywhere;
+  }
+
+  ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-3);
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    min-inline-size: 0;
+  }
+
+  li + li::before {
+    content: "/";
+    margin-inline-end: var(--space-3);
+  }
+
+  a {
+    display: inline-block;
+    padding-block: var(--space-3);
+  }
+</style>

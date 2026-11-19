@@ -1,0 +1,68 @@
+---
+const upcomingSections = ['Архив', 'О журнале', 'Авторам', 'Поиск'];
+---
+
+<header class="site-header container">
+  <a class="brand" href="/" aria-label="Контур — главная">Контур</a>
+  <nav aria-label="Основная навигация" aria-describedby="navigation-stage">
+    <ul>
+      {upcomingSections.map((label) => (
+        <li><span aria-disabled="true" title="Раздел готовится">{label}</span></li>
+      ))}
+    </ul>
+  </nav>
+  <p id="navigation-stage" class="stage-note">Учебный макет. Разделы навигации готовятся.</p>
+</header>
+
+<style>
+  .site-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    column-gap: var(--space-8);
+    padding-block: var(--space-6) var(--space-4);
+    border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--target-size-min);
+    color: var(--color-text);
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-section-title);
+    text-decoration: none;
+  }
+
+  nav {
+    max-inline-size: 100%;
+  }
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-6);
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    min-block-size: var(--target-size-min);
+  }
+
+  span,
+  .stage-note {
+    color: var(--color-text-secondary);
+  }
+
+  .stage-note {
+    flex-basis: 100%;
+    margin-block-start: var(--space-2);
+    font-size: var(--font-size-caption);
+  }
+</style>

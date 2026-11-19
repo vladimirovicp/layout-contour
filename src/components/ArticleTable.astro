@@ -1,0 +1,79 @@
+---
+import type { ArticleTable } from '../data/types';
+
+interface Props {
+  table: ArticleTable;
+  id: string;
+}
+
+const { table, id } = Astro.props;
+---
+
+{table.columns.length > 0 && table.rows.length > 0 && (
+  <figure class="table-block">
+    <figcaption id={`${id}-caption`}>{table.caption}</figcaption>
+    <p id={`${id}-hint`} class="table-hint">При необходимости прокрутите таблицу по горизонтали. С клавиатуры используйте стрелки.</p>
+    <div class="table-scroll" role="region" aria-labelledby={`${id}-caption`} aria-describedby={`${id}-hint`} tabindex="0">
+      <table aria-labelledby={`${id}-caption`}>
+        <thead>
+          <tr>{table.columns.map((column) => <th scope="col">{column}</th>)}</tr>
+        </thead>
+        <tbody>
+          {table.rows.map((row) => <tr>{row.map((cell) => <td>{cell}</td>)}</tr>)}
+        </tbody>
+      </table>
+    </div>
+  </figure>
+)}
+
+<style>
+  .table-block {
+    min-inline-size: 0;
+    margin-block-start: var(--space-6);
+    font-family: var(--font-interface);
+    font-size: var(--font-size-interface);
+    line-height: var(--line-height-interface);
+  }
+
+  .table-hint {
+    margin-block-end: var(--space-3);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-caption);
+  }
+
+  .table-scroll {
+    max-inline-size: 100%;
+    overflow-x: auto;
+  }
+
+  table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    text-align: start;
+  }
+
+  figcaption {
+    margin-block-end: var(--space-3);
+    text-align: start;
+    font-weight: var(--font-weight-medium);
+  }
+
+  th,
+  td {
+    min-inline-size: 11rem;
+    padding: var(--space-4);
+    border-bottom: var(--border-width) solid var(--color-border);
+    vertical-align: top;
+    overflow-wrap: anywhere;
+  }
+
+  th {
+    background: var(--color-surface);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  th:last-child,
+  td:last-child {
+    min-inline-size: 22rem;
+  }
+</style>

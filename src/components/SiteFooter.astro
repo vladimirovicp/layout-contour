@@ -1,0 +1,57 @@
+---
+const upcomingSections = ['Редакция', 'Контакты'];
+---
+
+<footer class="site-footer container">
+  <div>
+    <p class="footer-title">Контур</p>
+    <p class="notice">Вымышленный научный журнал. Учебный проект.</p>
+    <p class="notice">Материалы не являются научными доказательствами.</p>
+  </div>
+  <nav aria-label="Дополнительная навигация">
+    <ul>
+      {upcomingSections.map((label) => (
+        <li><span aria-disabled="true" title="Раздел готовится">{label} <small>(готовится)</small></span></li>
+      ))}
+    </ul>
+  </nav>
+</footer>
+
+<style>
+  .site-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-6) var(--space-12);
+    padding-block: var(--space-8) var(--space-12);
+    border-top: var(--border-width) solid var(--color-border);
+  }
+
+  .footer-title {
+    margin-block-end: var(--space-3);
+    font-family: var(--font-heading);
+    font-size: var(--font-size-card-title);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .notice,
+  nav {
+    color: var(--color-text-secondary);
+  }
+
+  .notice {
+    font-size: var(--font-size-caption);
+  }
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4) var(--space-6);
+    padding: 0;
+    list-style: none;
+  }
+
+  small {
+    font-size: var(--font-size-caption);
+  }
+</style>

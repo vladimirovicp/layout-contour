@@ -1,0 +1,43 @@
+---
+import type { GetStaticPaths } from 'astro';
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
+import { articles } from '../../data/articles';
+import { authors } from '../../data/authors';
+import { issues } from '../../data/issues';
+import type { Article, Author, Issue } from '../../data/types';
+
+export const getStaticPaths = (() => {
+  const slugs = new Set<string>();
+  const localPDFs = import.meta.glob('/public/**/*.pdf', { query: '?url', import: 'default' });
+  return articles.map((article) => {
+    if (slugs.has(article.slug)) throw new Error(`Duplicate article slug: ${article.slug}`);
+    slugs.add(article.slug);
+    const issue = issues.find((entry) => entry.slug === article.issueSlug);
+    if (!issue || !issue.articleSlugs.includes(article.slug)) {
+      throw new Error(`Missing issue relationship: ${article.slug}`);
+    }
+    const articleAuthors = article.authorIds.map((id) => {
+      const author = authors.find((entry) => entry.id === id);
+      if (!author) throw new Error(`Unknown author: ${id}`);
+      return author;
+    });
+    const pdfHref = article.pdfPath?.startsWith('/') &&
+      !article.pdfPath.includes('..') &&
+      `/public${article.pdfPath}` in localPDFs
+      ? article.pdfPath : undefined;
+    return {
+      params: { slug: article.slug },
+      props: { article, issue, articleAuthors, pdfHref },
+    };
+  });
+}) satisfies GetStaticPaths;
+
+interface Props {
+  article: Article;
+  issue: Issue;
+  articleAuthors: Author[];
+  pdfHref?: string;
+}
+---
+
+<ArticleLayout {...Astro.props} />
