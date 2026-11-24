@@ -22,7 +22,7 @@ const references = article.references?.filter((reference) => reference.trim());
 <BaseLayout title={article.title} description={article.abstract}>
   <Breadcrumbs items={[
     { label: 'Главная', href: '/' },
-    { label: 'Архив', unavailable: true },
+    { label: 'Архив', href: '/archive/' },
     { label: `Выпуск ${issue.year}, № ${issue.number}`, href: issueHref },
     { label: 'Статья' },
   ]} />
@@ -82,9 +82,8 @@ const references = article.references?.filter((reference) => reference.trim());
         </div>
 
         <footer class="article-footer">
-          <a href={issueHref} aria-describedby="issue-stage">К выпуску {issue.year}, № {issue.number}</a>
+          <a href={issueHref}>К выпуску {issue.year}, № {issue.number}</a>
           {pdfHref && <a href={pdfHref} download>Скачать PDF</a>}
-          <p id="issue-stage">Страница выпуска готовится. Ссылка сохранена для следующего этапа.</p>
         </footer>
       </div>
     </div>
@@ -250,12 +249,6 @@ const references = article.references?.filter((reference) => reference.trim());
     display: inline-flex;
     align-items: center;
     min-block-size: var(--target-size-min);
-  }
-
-  .article-footer p {
-    flex-basis: 100%;
-    color: var(--color-text-secondary);
-    font-size: var(--font-size-caption);
   }
 
   @media (min-width: 64rem) {
