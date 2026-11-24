@@ -2,9 +2,21 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import SearchForm from '../components/SearchForm.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import { articles } from '../data/articles';
+import { authors } from '../data/authors';
+
+const searchArticles = articles.map((article) => {
+  const articleAuthors = article.authorIds.map((id) => {
+    const author = authors.find((entry) => entry.id === id);
+    if (!author) throw new Error(`Unknown author: ${id}`);
+    return author;
+  });
+  return { article, articleAuthors };
+});
 ---
 
-<BaseLayout title="Поиск" description="Статичный макет страницы поиска по статьям вымышленного учебного журнала «Контур».">
+<BaseLayout title="Поиск" description="Поиск по заголовкам статей, именам авторов и ключевым словам вымышленного учебного журнала «Контур».">
   <Breadcrumbs items={[
     { label: 'Главная', href: '/' },
     { label: 'Поиск' },
@@ -12,22 +24,37 @@ import SearchForm from '../components/SearchForm.astro';
 
   <header class="search-header">
     <h1>Поиск по статьям</h1>
-    <p>Страница поиска вымышленного учебного журнала «Контур». Сейчас доступна только разметка — поиск и вывод результатов появятся позже.</p>
+    <p>Найдите статью вымышленного учебного журнала «Контур» по заголовку, имени автора или ключевым словам.</p>
   </header>
 
   <div class="search-grid">
-    <div class="search-content">
+    <div class="search-content" data-article-search>
       <SearchForm />
+      <noscript>
+        <p class="no-js-note">Для поиска включите JavaScript. Ниже доступен полный список статей; также можно открыть <a href="/archive/">архив выпусков</a>.</p>
+      </noscript>
 
       <section class="search-results" aria-labelledby="search-results-heading">
         <h2 id="search-results-heading">Результаты поиска</h2>
-        <div id="search-results" aria-live="polite">
-          <p>Здесь появятся результаты после подключения поиска. Пока статьи можно найти через <a href="/archive/">архив выпусков</a>.</p>
+        <div id="search-results" data-search-state={searchArticles.length > 0 ? 'all' : 'empty'}>
+          <p id="search-status" role="status" aria-live="polite" aria-atomic="true">
+            {searchArticles.length > 0 ? `Все статьи: ${searchArticles.length}.` : 'Статьи пока не добавлены.'}
+          </p>
+          <p id="search-empty" hidden={searchArticles.length > 0}>Попробуйте другие слова, нажмите «Сбросить поиск» или откройте <a href="/archive/">архив выпусков</a>.</p>
+          <ul class="article-list" role="list" hidden={searchArticles.length === 0}>
+            {searchArticles.map(({ article, articleAuthors }) => (
+              <li data-search-card data-search-keywords={article.keywords.join(' ')}>
+                <ArticleCard article={article} articleAuthors={articleAuthors} headingLevel="h3" />
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
     </div>
   </div>
 </BaseLayout>
+
+<script src="../scripts/article-search.ts"></script>
 
 <style>
   .search-header {
@@ -71,7 +98,38 @@ import SearchForm from '../components/SearchForm.astro';
   }
 
   #search-results {
+    max-inline-size: 100%;
+  }
+
+  #search-status,
+  #search-empty,
+  .no-js-note {
     max-inline-size: min(100%, var(--measure-abstract));
+  }
+
+  #search-status {
+    margin-block-end: var(--space-8);
+  }
+
+  .no-js-note {
+    margin-block-start: var(--space-6);
+    color: var(--color-text-secondary);
+  }
+
+  .article-list {
+    display: grid;
+    gap: var(--space-12);
+    padding: 0;
+    list-style: none;
+  }
+
+  .article-list li {
+    min-inline-size: 0;
+  }
+
+  .article-list[hidden],
+  .article-list li[hidden] {
+    display: none;
   }
 
   @media (min-width: 64rem) {

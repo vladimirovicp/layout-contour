@@ -1,17 +1,18 @@
-<form class="search-form" role="search" aria-label="Поиск статей" action="/search/" method="get">
-  <label for="search-query">Поисковый запрос</label>
+<form class="search-form" role="search" aria-label="Поиск по статьям" action="/search/" method="get">
+  <label for="search-query">Поиск по статьям</label>
   <div class="search-controls">
     <input
       id="search-query"
       type="search"
       name="q"
       placeholder="Например, открытая наука"
-      aria-describedby="search-hint search-stage"
+      aria-describedby="search-hint"
+      aria-controls="search-results"
     />
     <button type="submit" disabled>Найти</button>
+    <button type="reset" disabled>Сбросить поиск</button>
   </div>
-  <p id="search-hint" class="hint">Название статьи, имя автора или ключевые слова.</p>
-  <p id="search-stage" class="stage-note">Это статичный макет: поиск пока не подключён, кнопка «Найти» недоступна.</p>
+  <p id="search-hint" class="hint">Введите слова из заголовка, имени автора или ключевых слов и нажмите «Найти». Пустой запрос показывает все статьи.</p>
 </form>
 
 <style>
@@ -53,6 +54,26 @@
     opacity: 1;
   }
 
+  button {
+    background: var(--color-background);
+    color: var(--color-link);
+    cursor: pointer;
+  }
+
+  button[type="submit"] {
+    border-color: var(--color-link);
+    background: var(--color-link);
+    color: var(--color-background);
+  }
+
+  button:not(:disabled):hover {
+    border-color: var(--color-text);
+  }
+
+  button[type="submit"]:not(:disabled):hover {
+    background: var(--color-text);
+  }
+
   button:disabled {
     background: var(--color-surface);
     color: var(--color-text-secondary);
@@ -60,8 +81,7 @@
     opacity: 1;
   }
 
-  .hint,
-  .stage-note {
+  .hint {
     margin-block-start: var(--space-3);
     color: var(--color-text-secondary);
     font-size: var(--font-size-caption);
@@ -69,7 +89,7 @@
 
   @media (min-width: 48rem) {
     .search-controls {
-      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-columns: minmax(0, 1fr) auto auto;
     }
 
     button {
