@@ -1,0 +1,66 @@
+---
+import type { Article, Author } from '../data/types';
+
+interface Props {
+  article: Article;
+  articleAuthors: Author[];
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { article, articleAuthors, headingLevel: Heading = 'h2' } = Astro.props;
+---
+
+<article class="article-card" aria-labelledby={`article-${article.slug}`}>
+  <Heading id={`article-${article.slug}`} class="card-title">
+    <a href={`/articles/${article.slug}/`}>{article.title}</a>
+  </Heading>
+  {articleAuthors.length > 0 ? (
+    <ul class="authors" aria-label="Авторы">
+      {articleAuthors.map((author) => <li>{author.name}</li>)}
+    </ul>
+  ) : <p class="authors">Сведения об авторах не указаны.</p>}
+  <p class="abstract">{article.abstract}</p>
+</article>
+
+<style>
+  .article-card {
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .card-title {
+    max-inline-size: min(100%, var(--measure-title));
+    margin-block-end: var(--space-4);
+    font-family: var(--font-heading);
+    font-size: var(--font-size-card-title);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-card-title);
+  }
+
+  .card-title a {
+    display: inline-block;
+    min-block-size: var(--target-size-min);
+  }
+
+  .authors {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    margin-block-end: var(--space-4);
+    padding: 0;
+    list-style: none;
+    color: var(--color-text-secondary);
+  }
+
+  .authors li {
+    min-inline-size: 0;
+    max-inline-size: 100%;
+  }
+
+  .abstract {
+    max-inline-size: min(100%, var(--measure-abstract));
+    font-family: var(--font-abstract);
+    font-size: var(--font-size-abstract);
+    line-height: var(--line-height-abstract);
+  }
+</style>

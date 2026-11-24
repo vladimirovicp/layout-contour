@@ -1,0 +1,140 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import IssueCard from '../../components/IssueCard.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { issues } from '../../data/issues';
+import { articles } from '../../data/articles';
+import { authors } from '../../data/authors';
+import type { Issue } from '../../data/types';
+
+export const getStaticPaths = (() => {
+  const slugs = new Set<string>();
+  return issues.map((issue) => {
+    if (slugs.has(issue.slug)) throw new Error(`Duplicate issue slug: ${issue.slug}`);
+    slugs.add(issue.slug);
+    return { params: { slug: issue.slug }, props: { issue } };
+  });
+}) satisfies GetStaticPaths;
+
+interface Props {
+  issue: Issue;
+}
+
+const { issue } = Astro.props;
+
+const slugs = new Set<string>();
+const contents = issue.articleSlugs.map((slug) => {
+  if (slugs.has(slug)) throw new Error(`Duplicate contents entry: ${slug}`);
+  slugs.add(slug);
+  const article = articles.find((entry) => entry.slug === slug);
+  if (!article || article.issueSlug !== issue.slug) {
+    throw new Error(`Invalid issue relationship: ${slug}`);
+  }
+  const articleAuthors = article.authorIds.map((id) => {
+    const author = authors.find((entry) => entry.id === id);
+    if (!author) throw new Error(`Unknown author: ${id}`);
+    return author;
+  });
+  return { article, articleAuthors };
+});
+const title = `Выпуск ${issue.year}, № ${issue.number}`;
+---
+
+<BaseLayout title={`${title}. ${issue.title}`} description={issue.description || title}>
+  <Breadcrumbs items={[
+    { label: 'Главная', href: '/' },
+    { label: 'Архив', href: '/archive/' },
+    { label: title },
+  ]} />
+
+  <header class="issue-header">
+    <h1>{title}</h1>
+    <p class="demo-notice">Вымышленный учебный выпуск. Авторы и содержание придуманы для макета.</p>
+  </header>
+
+  <div class="issue-grid">
+    <div class="issue-details">
+      <IssueCard issue={issue} linked={false} />
+    </div>
+    <section class="contents" aria-labelledby="contents-heading">
+      <h2 id="contents-heading">Содержание выпуска</h2>
+      {contents.length > 0 ? (
+        <ol class="article-list" role="list">
+          {contents.map(({ article, articleAuthors }) => (
+            <li><ArticleCard article={article} articleAuthors={articleAuthors} headingLevel="h3" /></li>
+          ))}
+        </ol>
+      ) : (
+        <p>В этом выпуске пока нет статей. <a href="/">На главную</a></p>
+      )}
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .issue-header {
+    margin-block-end: var(--space-12);
+  }
+
+  h1,
+  h2 {
+    font-family: var(--font-heading);
+    font-weight: var(--font-weight-semibold);
+    overflow-wrap: anywhere;
+  }
+
+  h1 {
+    max-inline-size: min(100%, var(--measure-title));
+    margin-block-end: var(--space-6);
+    font-size: var(--font-size-page-title);
+    line-height: var(--line-height-page-title);
+  }
+
+  .demo-notice {
+    max-inline-size: min(100%, var(--measure-abstract));
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-caption);
+  }
+
+  .issue-grid {
+    display: grid;
+    gap: var(--space-12);
+  }
+
+  .issue-details,
+  .contents,
+  .article-list li {
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .contents h2 {
+    margin-block-end: var(--space-8);
+    font-size: var(--font-size-section-title);
+    line-height: var(--line-height-section-title);
+  }
+
+  .article-list {
+    display: grid;
+    gap: var(--space-12);
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 64rem) {
+    .issue-grid {
+      grid-template-columns: repeat(var(--grid-columns-wide), minmax(0, 1fr));
+      column-gap: var(--grid-gap);
+    }
+
+    .issue-details {
+      grid-column: 1 / span var(--grid-sidebar-columns);
+    }
+
+    .contents {
+      grid-column: var(--grid-content-start) / span var(--grid-content-columns);
+    }
+  }
+</style>

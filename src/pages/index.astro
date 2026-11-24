@@ -1,16 +1,158 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import IssueCard from '../components/IssueCard.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import { home } from '../data/home';
+import { issues } from '../data/issues';
+import { articles } from '../data/articles';
+import { authors } from '../data/authors';
+import type { Issue } from '../data/types';
+
+const currentIssue = issues.reduce<Issue | undefined>((latest, issue) => (
+  !latest || issue.publishedAt > latest.publishedAt ? issue : latest
+), undefined);
+
+const selectedSlugs = new Set<string>();
+const featuredArticles = articles.length === 0 ? [] : home.featuredArticleSlugs.map((slug) => {
+  if (selectedSlugs.has(slug)) throw new Error(`Duplicate featured article: ${slug}`);
+  selectedSlugs.add(slug);
+  const article = articles.find((entry) => entry.slug === slug);
+  if (!article) throw new Error(`Unknown featured article: ${slug}`);
+  const issue = issues.find((entry) => entry.slug === article.issueSlug);
+  if (!issue || !issue.articleSlugs.includes(slug)) {
+    throw new Error(`Invalid issue relationship: ${slug}`);
+  }
+  const articleAuthors = article.authorIds.map((id) => {
+    const author = authors.find((entry) => entry.id === id);
+    if (!author) throw new Error(`Unknown author: ${id}`);
+    return author;
+  });
+  return { article, articleAuthors };
+});
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title={home.title} description={home.description}>
+  <header class="home-header">
+    <h1>{home.title}</h1>
+    <p class="introduction">{home.description}</p>
+    <p class="demo-notice">{home.notice}</p>
+  </header>
+
+  <div class="home-grid">
+    <section class="current-issue" aria-labelledby="current-issue-label">
+      <p id="current-issue-label" class="section-label">Текущий выпуск</p>
+      {currentIssue ? (
+        <IssueCard issue={currentIssue} />
+      ) : (
+        <p>Выпуски пока не опубликованы.</p>
+      )}
+      <a class="archive-link" href="/archive/">Все выпуски</a>
+    </section>
+
+    <section class="featured-articles" aria-labelledby="featured-heading">
+      <h2 id="featured-heading">Подборка статей</h2>
+      <p class="selection-note">Материалы из разных выпусков журнала.</p>
+      {featuredArticles.length > 0 ? (
+        <ul class="article-list" role="list">
+          {featuredArticles.map(({ article, articleAuthors }) => (
+            <li><ArticleCard article={article} articleAuthors={articleAuthors} headingLevel="h3" /></li>
+          ))}
+        </ul>
+      ) : (
+        <p>В подборке пока нет статей. <a href="/archive/">Перейти в архив</a></p>
+      )}
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .home-header {
+    padding-block-start: var(--space-12);
+    margin-block-end: var(--space-16);
+    overflow-wrap: anywhere;
+  }
+
+  h1,
+  h2 {
+    font-family: var(--font-heading);
+    font-weight: var(--font-weight-semibold);
+    overflow-wrap: anywhere;
+  }
+
+  h1 {
+    max-inline-size: min(100%, var(--measure-title));
+    margin-block-end: var(--space-6);
+    font-size: var(--font-size-page-title);
+    line-height: var(--line-height-page-title);
+  }
+
+  .introduction {
+    max-inline-size: min(100%, var(--measure-abstract));
+    font-size: var(--font-size-abstract);
+    line-height: var(--line-height-abstract);
+  }
+
+  .demo-notice {
+    max-inline-size: min(100%, var(--measure-abstract));
+    margin-block-start: var(--space-6);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-caption);
+  }
+
+  .home-grid {
+    display: grid;
+    gap: var(--space-12);
+  }
+
+  .current-issue,
+  .featured-articles,
+  .article-list li {
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .section-label {
+    margin-block-end: var(--space-5);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .archive-link {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--target-size-min);
+    margin-block-start: var(--space-5);
+  }
+
+  .featured-articles h2 {
+    margin-block-end: var(--space-3);
+    font-size: var(--font-size-section-title);
+    line-height: var(--line-height-section-title);
+  }
+
+  .selection-note {
+    margin-block-end: var(--space-8);
+    color: var(--color-text-secondary);
+  }
+
+  .article-list {
+    display: grid;
+    gap: var(--space-12);
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 64rem) {
+    .home-grid {
+      grid-template-columns: repeat(var(--grid-columns-wide), minmax(0, 1fr));
+      column-gap: var(--grid-gap);
+    }
+
+    .current-issue {
+      grid-column: 1 / span var(--grid-sidebar-columns);
+    }
+
+    .featured-articles {
+      grid-column: var(--grid-content-start) / span var(--grid-content-columns);
+    }
+  }
+</style>

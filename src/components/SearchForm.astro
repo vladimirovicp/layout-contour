@@ -1,0 +1,79 @@
+<form class="search-form" role="search" aria-label="Поиск статей" action="/search/" method="get">
+  <label for="search-query">Поисковый запрос</label>
+  <div class="search-controls">
+    <input
+      id="search-query"
+      type="search"
+      name="q"
+      placeholder="Например, открытая наука"
+      aria-describedby="search-hint search-stage"
+    />
+    <button type="submit" disabled>Найти</button>
+  </div>
+  <p id="search-hint" class="hint">Название статьи, имя автора или ключевые слова.</p>
+  <p id="search-stage" class="stage-note">Это статичный макет: поиск пока не подключён, кнопка «Найти» недоступна.</p>
+</form>
+
+<style>
+  .search-form {
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  label {
+    display: block;
+    margin-block-end: var(--space-3);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .search-controls {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  input,
+  button {
+    min-inline-size: 0;
+    min-block-size: var(--target-size-min);
+    padding: var(--space-3) var(--space-4);
+    border: var(--border-width) solid var(--color-control-border);
+    border-radius: var(--radius-control);
+    font: inherit;
+    line-height: var(--line-height-interface);
+  }
+
+  input {
+    inline-size: 100%;
+    background: var(--color-background);
+    color: var(--color-text);
+  }
+
+  input::placeholder {
+    color: var(--color-text-secondary);
+    opacity: 1;
+  }
+
+  button:disabled {
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    cursor: not-allowed;
+    opacity: 1;
+  }
+
+  .hint,
+  .stage-note {
+    margin-block-start: var(--space-3);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-caption);
+  }
+
+  @media (min-width: 48rem) {
+    .search-controls {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    button {
+      padding-inline: var(--space-6);
+    }
+  }
+</style>

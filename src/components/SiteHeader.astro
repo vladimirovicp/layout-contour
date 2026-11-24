@@ -1,17 +1,25 @@
 ---
-const upcomingSections = ['Архив', 'О журнале', 'Авторам', 'Поиск'];
+import { infoPages } from '../data/info-pages';
+
+const sections = [
+  { label: 'Архив', href: '/archive/' },
+  ...infoPages.filter((page) => page.slug === 'about' || page.slug === 'authors')
+    .map((page) => ({ label: page.title, href: `/${page.slug}/` })),
+  { label: 'Поиск', href: '/search/' },
+];
+const pathname = `${Astro.url.pathname.replace(/\/$/, '')}/`;
 ---
 
 <header class="site-header container">
   <a class="brand" href="/" aria-label="Контур — главная">Контур</a>
   <nav aria-label="Основная навигация" aria-describedby="navigation-stage">
     <ul>
-      {upcomingSections.map((label) => (
-        <li><span aria-disabled="true" title="Раздел готовится">{label}</span></li>
+      {sections.map((section) => (
+        <li><a href={section.href} aria-current={pathname === section.href ? 'page' : undefined}>{section.label}</a></li>
       ))}
     </ul>
   </nav>
-  <p id="navigation-stage" class="stage-note">Учебный макет. Разделы навигации готовятся.</p>
+  <p id="navigation-stage" class="stage-note">Учебный макет. На странице поиска пока доступна только разметка.</p>
 </header>
 
 <style>
@@ -55,9 +63,18 @@ const upcomingSections = ['Архив', 'О журнале', 'Авторам', '
     min-block-size: var(--target-size-min);
   }
 
-  span,
   .stage-note {
     color: var(--color-text-secondary);
+  }
+
+  nav a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--target-size-min);
+  }
+
+  nav a[aria-current="page"] {
+    font-weight: var(--font-weight-semibold);
   }
 
   .stage-note {

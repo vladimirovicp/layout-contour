@@ -1,0 +1,77 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import IssueCard from '../components/IssueCard.astro';
+import { issues } from '../data/issues';
+---
+
+<BaseLayout title="Архив выпусков" description="Все выпуски вымышленного учебного журнала «Контур».">
+  <Breadcrumbs items={[
+    { label: 'Главная', href: '/' },
+    { label: 'Архив' },
+  ]} />
+
+  <header class="archive-header">
+    <h1>Архив выпусков</h1>
+    <p>Все выпуски вымышленного учебного журнала «Контур». Выберите выпуск, чтобы открыть его содержание.</p>
+  </header>
+
+  <div class="archive-grid">
+    <div class="archive-content">
+      {issues.length > 0 ? (
+        <ul class="issue-list" aria-label="Выпуски журнала" role="list">
+          {issues.map((issue) => <li><IssueCard issue={issue} /></li>)}
+        </ul>
+      ) : (
+        <p>В архиве пока нет выпусков. <a href="/">На главную</a></p>
+      )}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .archive-header {
+    margin-block-end: var(--space-12);
+    overflow-wrap: anywhere;
+  }
+
+  h1 {
+    max-inline-size: min(100%, var(--measure-title));
+    margin-block-end: var(--space-6);
+    font-family: var(--font-heading);
+    font-size: var(--font-size-page-title);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-page-title);
+  }
+
+  .archive-header p {
+    max-inline-size: min(100%, var(--measure-abstract));
+    font-size: var(--font-size-abstract);
+    line-height: var(--line-height-abstract);
+  }
+
+  .archive-content,
+  .issue-list li {
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .issue-list {
+    display: grid;
+    gap: var(--space-12);
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 64rem) {
+    .archive-grid {
+      display: grid;
+      grid-template-columns: repeat(var(--grid-columns-wide), minmax(0, 1fr));
+      gap: var(--grid-gap);
+    }
+
+    .archive-content {
+      grid-column: var(--grid-content-start) / span var(--grid-content-columns);
+    }
+  }
+</style>

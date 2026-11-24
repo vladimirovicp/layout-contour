@@ -1,0 +1,88 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import SearchForm from '../components/SearchForm.astro';
+---
+
+<BaseLayout title="Поиск" description="Статичный макет страницы поиска по статьям вымышленного учебного журнала «Контур».">
+  <Breadcrumbs items={[
+    { label: 'Главная', href: '/' },
+    { label: 'Поиск' },
+  ]} />
+
+  <header class="search-header">
+    <h1>Поиск по статьям</h1>
+    <p>Страница поиска вымышленного учебного журнала «Контур». Сейчас доступна только разметка — поиск и вывод результатов появятся позже.</p>
+  </header>
+
+  <div class="search-grid">
+    <div class="search-content">
+      <SearchForm />
+
+      <section class="search-results" aria-labelledby="search-results-heading">
+        <h2 id="search-results-heading">Результаты поиска</h2>
+        <div id="search-results" aria-live="polite">
+          <p>Здесь появятся результаты после подключения поиска. Пока статьи можно найти через <a href="/archive/">архив выпусков</a>.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .search-header {
+    margin-block-end: var(--space-12);
+    overflow-wrap: anywhere;
+  }
+
+  h1,
+  h2 {
+    font-family: var(--font-heading);
+    font-weight: var(--font-weight-semibold);
+    overflow-wrap: anywhere;
+  }
+
+  h1 {
+    max-inline-size: min(100%, var(--measure-title));
+    margin-block-end: var(--space-6);
+    font-size: var(--font-size-page-title);
+    line-height: var(--line-height-page-title);
+  }
+
+  .search-header p {
+    max-inline-size: min(100%, var(--measure-abstract));
+    font-size: var(--font-size-abstract);
+    line-height: var(--line-height-abstract);
+  }
+
+  .search-content {
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .search-results {
+    margin-block-start: var(--space-12);
+  }
+
+  h2 {
+    margin-block-end: var(--space-5);
+    font-size: var(--font-size-section-title);
+    line-height: var(--line-height-section-title);
+  }
+
+  #search-results {
+    max-inline-size: min(100%, var(--measure-abstract));
+  }
+
+  @media (min-width: 64rem) {
+    .search-grid {
+      display: grid;
+      grid-template-columns: repeat(var(--grid-columns-wide), minmax(0, 1fr));
+      gap: var(--grid-gap);
+    }
+
+    .search-content {
+      grid-column: var(--grid-content-start) / span var(--grid-content-columns);
+    }
+  }
+</style>

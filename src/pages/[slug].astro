@@ -1,0 +1,21 @@
+---
+import type { GetStaticPaths } from 'astro';
+import InfoLayout from '../layouts/InfoLayout.astro';
+import { infoPages } from '../data/info-pages';
+import type { InfoPage } from '../data/info-pages';
+
+export const getStaticPaths = (() => {
+  const slugs = new Set<string>();
+  return infoPages.map((page) => {
+    if (slugs.has(page.slug)) throw new Error(`Duplicate info page slug: ${page.slug}`);
+    slugs.add(page.slug);
+    return { params: { slug: page.slug }, props: { page } };
+  });
+}) satisfies GetStaticPaths;
+
+interface Props {
+  page: InfoPage;
+}
+---
+
+<InfoLayout {...Astro.props} />

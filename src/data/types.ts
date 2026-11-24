@@ -1,3 +1,11 @@
+/** Локальный файл из public/images; размеры — исходные размеры изображения. */
+export interface LocalImage {
+  src: `/images/${string}`;
+  width: number;
+  height: number;
+  alt: string;
+}
+
 export interface Author {
   id: string;
   name: string;
@@ -13,6 +21,7 @@ export interface Issue {
   title: string;
   publishedAt: string;
   description: string;
+  cover?: LocalImage;
   /** Порядок статей в оглавлении. */
   articleSlugs: string[];
 }

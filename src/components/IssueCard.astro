@@ -1,0 +1,90 @@
+---
+import type { Issue } from '../data/types';
+
+interface Props {
+  issue: Issue;
+  linked?: boolean;
+}
+
+const { issue, linked = true } = Astro.props;
+const date = new Intl.DateTimeFormat('ru-RU', {
+  day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC',
+}).format(new Date(issue.publishedAt));
+---
+
+<article class="issue-card" aria-labelledby={`issue-${issue.slug}`}>
+  {issue.cover && (
+    <img
+      class="cover"
+      src={issue.cover.src}
+      width={issue.cover.width}
+      height={issue.cover.height}
+      alt={issue.cover.alt}
+      loading="lazy"
+      decoding="async"
+    />
+  )}
+  <div class="issue-summary">
+    <p class="issue-number">{issue.year}, № {issue.number}</p>
+    <h2 id={`issue-${issue.slug}`}>
+      {linked ? <a href={`/issues/${issue.slug}/`}>{issue.title}</a> : issue.title}
+    </h2>
+    <p class="published"><span>Опубликовано </span><time datetime={issue.publishedAt}>{date}</time></p>
+    {issue.description && <p class="description">{issue.description}</p>}
+  </div>
+</article>
+
+<style>
+  .issue-card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--space-6);
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .cover {
+    flex: 0 0 auto;
+    inline-size: min(100%, 12rem);
+    block-size: auto;
+  }
+
+  .issue-summary {
+    flex: 1 1 15rem;
+    min-inline-size: 0;
+  }
+
+  .issue-number,
+  .published {
+    color: var(--color-text-secondary);
+  }
+
+  .issue-number {
+    margin-block-end: var(--space-3);
+  }
+
+  h2 {
+    max-inline-size: min(100%, var(--measure-title));
+    margin-block-end: var(--space-5);
+    font-family: var(--font-heading);
+    font-size: var(--font-size-card-title);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-card-title);
+  }
+
+  h2 a {
+    display: inline-block;
+    min-block-size: var(--target-size-min);
+  }
+
+  .published span,
+  time {
+    display: block;
+  }
+
+  .description {
+    max-inline-size: min(100%, var(--measure-abstract));
+    margin-block-start: var(--space-5);
+  }
+</style>

@@ -1,5 +1,8 @@
 ---
-const upcomingSections = ['Редакция', 'Контакты'];
+import { infoPages } from '../data/info-pages';
+
+const sections = infoPages.filter((page) => page.slug === 'editorial' || page.slug === 'contacts');
+const pathname = `${Astro.url.pathname.replace(/\/$/, '')}/`;
 ---
 
 <footer class="site-footer container">
@@ -10,8 +13,8 @@ const upcomingSections = ['Редакция', 'Контакты'];
   </div>
   <nav aria-label="Дополнительная навигация">
     <ul>
-      {upcomingSections.map((label) => (
-        <li><span aria-disabled="true" title="Раздел готовится">{label} <small>(готовится)</small></span></li>
+      {sections.map((page) => (
+        <li><a href={`/${page.slug}/`} aria-current={pathname === `/${page.slug}/` ? 'page' : undefined}>{page.title}</a></li>
       ))}
     </ul>
   </nav>
@@ -51,7 +54,13 @@ const upcomingSections = ['Редакция', 'Контакты'];
     list-style: none;
   }
 
-  small {
-    font-size: var(--font-size-caption);
+  nav a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--target-size-min);
+  }
+
+  nav a[aria-current="page"] {
+    font-weight: var(--font-weight-semibold);
   }
 </style>
